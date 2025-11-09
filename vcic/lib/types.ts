@@ -1,0 +1,65 @@
+/**
+ * EventSummary: Used for the main event list page.
+ * Fetched from the 'MasterIndex' sheet.
+ */
+export type EventSummary = {
+  event_id: string;
+  event_name: string;
+  event_type: 'MBA' | 'Undergraduate';
+  event_date: string;
+  host_name: string;
+  host_logo_url: string;
+  status: 'Live' | 'Final';
+};
+
+/**
+ * Team: A single team for an event.
+ * Fetched from the 'teams' tab of an Event Sheet.
+ */
+export type Team = {
+  team_id: string;
+  team_name: string;
+  photo_url: string;
+  is_active: boolean;
+};
+
+/**
+ * Judge: A single judge for an event.
+ * Fetched from the 'judges' tab of an Event Sheet.
+ */
+export type Judge = {
+  judge_id: string;
+  judge_name: string;
+  photo_url: string;
+  is_active: boolean;
+};
+
+/**
+ * EventData: The full data payload for a single event.
+ * This is the return type for your GET /api/events/[eventId] route.
+ */
+export type EventData = {
+  teams: Team[];
+  judges: Judge[];
+  // We can add event_name, etc. here later if needed
+};
+
+/**
+ * VotePayload: The data sent from the frontend to the backend when a judge votes.
+ */
+export type VotePayload = {
+  judge_id: string;
+  round: string; // "Due Diligence", "Written Deliverables", etc.
+  ranks: {
+    rank1_team_id: string;
+    rank2_team_id: string;
+    rank3_team_id: string;
+  };
+};
+
+/**
+ * ApiError: A standard shape for all API error responses.
+ */
+export type ApiError = {
+  error: string;
+};
