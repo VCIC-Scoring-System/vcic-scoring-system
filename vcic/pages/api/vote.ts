@@ -5,31 +5,6 @@ import { VotePayload, ApiError } from '@/lib/types';
 import { sheets_v4 } from 'googleapis';
 
 // ---
-// Helper function to find the Sheet ID from the MasterIndex (reused from [eventId].ts)
-// ---
-async function getEventSheetId(eventId: string): Promise<string> {
-  const masterSheetId = process.env.MASTER_INDEX_SHEET_ID;
-  const range = 'MasterIndex!A2:C'; // event_id (A), sheet_id (C)
-
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: masterSheetId,
-    range: range,
-  });
-
-  const rows = response.data.values;
-  if (!rows) {
-    throw new Error('MasterIndex sheet is empty.');
-  }
-
-  const eventRow = rows.find((row) => row[0] === eventId);
-  if (!eventRow) {
-    throw new Error(`Event with ID "${eventId}" not found in MasterIndex.`);
-  }
-
-  return eventRow[2]; // sheet_id
-}
-
-// ---
 // The Main API Handler
 // ---
 export default async function handler(
@@ -41,9 +16,21 @@ export default async function handler(
   }
 
   try {
-    const { eventId } = req.query;
-    if (typeof eventId !== 'string') {
-      return res.status(400).json({ error: 'Invalid eventId' });
+    const { sheetId } = req.query;
+    if (typeof sheetId !== 'string') {
+      return res.status(400).json({ error: 'Invalid sheetId' });
+    }
+
+    // Optional: Validate sheetId exists in Master Index
+    const masterSheetId = process.env.MASTER_INDEX_SHEET_ID;
+    const range = 'MasterIndex!C2:C'; // sheet_id column (C)
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: masterSheetId,
+      range: range,
+    });
+    const existingSheetIds = response.data.values?.flat() || [];
+    if (!existingSheetIds.includes(sheetId)) {
+      return res.status(404).json({ error: 'Event not found' });
     }
 
     const payload: VotePayload = req.body;
@@ -56,8 +43,8 @@ export default async function handler(
       return res.status(400).json({ error: 'Ranks must be unique teams' });
     }
 
-    // 1. Get the Event Sheet ID
-    const eventSheetId = await getEventSheetId(eventId);
+    // Use sheetId directly as eventSheetId
+    const eventSheetId = sheetId;
 
     // 2. Get the *sheetId* (the tab ID, e.g., 0) for 'votes_data'
     // This is needed for DeleteDimension requests
