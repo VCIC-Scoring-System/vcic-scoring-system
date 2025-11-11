@@ -63,3 +63,29 @@ export type VotePayload = {
 export type ApiError = {
   error: string;
 };
+
+// A single team sent from the admin form
+export type FormTeam = {
+  team_name: string;
+  photo_url: string;
+};
+
+// A single judge sent from the admin form
+export type FormJudge = {
+  judge_name: string;
+  photo_url: string;
+};
+
+// The complete payload sent to the create-event API
+export type CreateEventPayload = {
+  // From MasterIndex
+  event_id: string; // e.g., "2025-texas"
+  event_name: string;
+  event_type: 'MBA' | 'Undergraduate';
+  event_date: string;
+  host_name: string;
+  host_logo_url: string;
+  // From Event Sheet
+  teams: FormTeam[];
+  judges: FormJudge[];
+};
