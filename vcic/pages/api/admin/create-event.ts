@@ -74,6 +74,7 @@ export default async function handler(
         name: `Event: ${payload.event_name}`,
         parents: [GOOGLE_DRIVE_FOLDER_ID],
       },
+      supportsAllDrives: true,
     });
     const newSheetId = copyResponse.data.id;
 
@@ -130,9 +131,32 @@ export default async function handler(
     });
 
     res.status(200).json({ success: true, eventId: payload.event_id, sheetId: newSheetId });
-  } catch (error) {
-    console.error(error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    res.status(500).json({ error: errorMessage });
+  } catch (error: unknown) {
+    console.error("--- FULL ERROR ---");
+    console.error(error); // Log the full error object
+
+    let detailedMessage = "Unknown server error";
+    let statusCode = 500;
+
+    // Check if it's an error object
+    if (error instanceof Error) {
+      detailedMessage = error.message;
+
+      // --- Log the 'cause' (Coach's suggestion) ---
+      // This will log the detailed [Object] to your terminal
+      if ('cause' in error) {
+        console.error("\n--- DETAILED ERROR CAUSE (for debugging) ---");
+        console.error((error as { cause: unknown }).cause);
+        console.error("--------------------------------------------\n");
+      }
+
+      // Try to get the specific HTTP status code
+      if ('code' in error && typeof error.code === 'number') {
+        statusCode = error.code;
+      }
+    }
+    
+    // Send a simple, type-safe error message back to Postman/curl
+    res.status(statusCode).json({ error: detailedMessage });
   }
 }
