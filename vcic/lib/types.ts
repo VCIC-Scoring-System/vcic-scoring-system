@@ -36,12 +36,12 @@ export type Judge = {
 
 /**
  * EventData: The full data payload for a single event.
- * This is the return type for your GET /api/events/[eventId] route.
+ * This is the return type for your GET /api/vote-data/[sheetId] route.
  */
 export type EventData = {
+  eventName: string;
   teams: Team[];
   judges: Judge[];
-  // We can add event_name, etc. here later if needed
 };
 
 /**
