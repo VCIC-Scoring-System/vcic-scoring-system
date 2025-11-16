@@ -63,6 +63,7 @@ npm start
 ## Documentation
 - User guide: `doc/user.md`
 - Admin guide: `doc/admin.md`
+- Documentation plan: `DocumentationPlan.md`
 
 ## Troubleshooting
 - “Invalid or missing admin token”: verify `ADMIN_TOKEN` in body/env.
