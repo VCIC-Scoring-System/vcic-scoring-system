@@ -61,8 +61,8 @@ npm start
   4) Set `status` to `Final` in Master Index to publish the scoreboard.
 
 ## Documentation
-- User guide: `doc/user.md`
-- Admin guide: `doc/admin.md`
+- User guide: [user.md](vivc/doc/user.md)
+- Admin guide: [admin.md](vivc/doc/admin.md)
 
 ## Troubleshooting
 - “Invalid or missing admin token”: verify `ADMIN_TOKEN` in body/env.
