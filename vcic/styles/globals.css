@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@theme {
+  --color-vcic-blue-500: #5883B8;
+  --color-vcic-blue-400: #4a6ea0;
+  --color-vcic-dark: #373839;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {

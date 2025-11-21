@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Header from "@/components/header";
+import { Header } from "@/components/header";
 import TeamGrid from "@/components/team-grid";
 
 interface Judge {
@@ -29,7 +29,7 @@ export default function JudgeSelectionPage() {
         // Map the API response to our Judge interface
         const judgeList = (data.judges || []).map((j: any) => ({
           name: j.judge_name,
-          judgeId: j.judge_id
+          judgeId: j.judge_id,
         }));
         setJudges(judgeList);
       } catch (err) {
@@ -73,4 +73,3 @@ export default function JudgeSelectionPage() {
     </div>
   );
 }
-

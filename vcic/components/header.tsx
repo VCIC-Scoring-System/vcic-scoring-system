@@ -1,15 +1,19 @@
 import Image from "next/image";
 
-export default function Header() {
+export function Header() {
   return (
-    <header className="w-full bg-[#5883B8] p-4">
-      <Image
-        src="/vcic-header-logo.png" // Path from the 'public' folder
-        alt="VCIC and UNC KFBS Logo"
-        width={300} // Set a base width (will be resized)
-        height={40} // Set a base height
-        className="h-10 w-auto" // Control the size with Tailwind
-      />
+    <header className="w-full bg-vcic-blue-500 py-4 px-4 shadow-md">
+      <div className="container mx-auto flex sm:justify-start">
+        <div className="relative h-10 w-50 sm:h-12 sm:w-60">
+          <Image
+            src="/vcic-header-logo.png"
+            alt="VCIC and UNC KFBS Logo"
+            fill
+            className="object-contain object-left"
+            priority
+          />
+        </div>
+      </div>
     </header>
   );
 }
