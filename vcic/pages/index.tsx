@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Header from "@/components/header";
+import { Header } from "@/components/header";
 import { useRouter } from "next/router";
 
 // Event type
@@ -21,8 +21,9 @@ export default function EventsPage() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<EventItem[]>([]);
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] =
-    useState<"MBA" | "Undergraduate">("MBA");
+  const [selectedCategory, setSelectedCategory] = useState<
+    "MBA" | "Undergraduate"
+  >("MBA");
   const [loading, setLoading] = useState(true);
 
   // Fetch events from API
@@ -33,7 +34,9 @@ export default function EventsPage() {
         const data = await res.json();
 
         setEvents(data.events);
-        setFilteredEvents(data.events.filter((e: EventItem) => e.category === "MBA"));
+        setFilteredEvents(
+          data.events.filter((e: EventItem) => e.category === "MBA")
+        );
       } catch (err) {
         console.error("Failed to load events", err);
       } finally {
@@ -55,7 +58,9 @@ export default function EventsPage() {
   }, [search, selectedCategory, events]);
 
   if (loading)
-    return <p className="text-center mt-20 text-lg text-black">Loading events...</p>;
+    return (
+      <p className="text-center mt-20 text-lg text-black">Loading events...</p>
+    );
 
   return (
     <div className="bg-white min-h-screen pb-10">
@@ -148,4 +153,3 @@ export default function EventsPage() {
     </div>
   );
 }
-

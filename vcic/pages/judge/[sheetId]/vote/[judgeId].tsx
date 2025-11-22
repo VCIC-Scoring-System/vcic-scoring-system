@@ -1,7 +1,6 @@
-
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Header from "@/components/header";
+import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
@@ -100,14 +99,14 @@ export default function JudgeVotingPage() {
       return;
     }
 
-    if (typeof judgeId !== 'string' || typeof sheetId !== 'string') {
+    if (typeof judgeId !== "string" || typeof sheetId !== "string") {
       return;
     }
 
     try {
       const res = await fetch(`/api/vote?sheetId=${sheetId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           judge_id: judgeId,
           round: selectedRound,
@@ -119,7 +118,7 @@ export default function JudgeVotingPage() {
         }),
       });
 
-      if (!res.ok) throw new Error('Failed to submit vote');
+      if (!res.ok) throw new Error("Failed to submit vote");
 
       const params = new URLSearchParams({
         round: selectedRound,
@@ -132,7 +131,7 @@ export default function JudgeVotingPage() {
       router.push(`/judge/${sheetId}/confirmation?${params.toString()}`);
     } catch (e) {
       console.error(e);
-      alert('Failed to submit vote. Please try again.');
+      alert("Failed to submit vote. Please try again.");
     }
   };
 
@@ -140,14 +139,13 @@ export default function JudgeVotingPage() {
     return <p className="text-center mt-20">Loading...</p>;
   }
 
-  const currentJudge = data.judges.find(j => j.judge_id === judgeId);
+  const currentJudge = data.judges.find((j) => j.judge_id === judgeId);
 
   return (
     <div className="min-h-screen bg-white text-black">
       <Header />
 
       <div className="p-5 max-w-md mx-auto">
-
         {/* Event Title with Back Button */}
         <div className="relative flex items-center justify-center mb-2">
           <button
@@ -171,9 +169,7 @@ export default function JudgeVotingPage() {
             </svg>
           </button>
 
-          <h1 className="text-xl font-bold text-center">
-            {data.eventName}
-          </h1>
+          <h1 className="text-xl font-bold text-center">{data.eventName}</h1>
         </div>
 
         {/* Voting as */}
@@ -181,7 +177,9 @@ export default function JudgeVotingPage() {
           <p className="text-lg font-medium">
             Voting as:{" "}
             <span
-              onClick={() => router.push(`/judge/${sheetId}/history/${judgeId}`)}
+              onClick={() =>
+                router.push(`/judge/${sheetId}/history/${judgeId}`)
+              }
               className="underline cursor-pointer font-semibold hover:text-[#5883B8] transition"
             >
               {currentJudge?.judge_name || "Unknown Judge"}
@@ -211,7 +209,6 @@ export default function JudgeVotingPage() {
           ))}
         </div>
 
-
         {/* Vote */}
         <p className="text-lg font-medium text-center mt-6">Vote:</p>
         <p className="text-sm text-center text-gray-600">
@@ -235,12 +232,12 @@ export default function JudgeVotingPage() {
           ))}
         </div>
 
-
         {/* Team Grid */}
         <div className="grid grid-cols-2 gap-3 mt-6">
           {data.teams.map((team) => {
             const isSelected =
-              votes[selectedRound][selectedPlace ?? "1st Place"] === team.team_id;
+              votes[selectedRound][selectedPlace ?? "1st Place"] ===
+              team.team_id;
 
             return (
               <Card
@@ -255,7 +252,7 @@ export default function JudgeVotingPage() {
                 <CardContent className="p-3 flex flex-col items-center">
                   <div className="relative w-full aspect-square rounded-md overflow-hidden bg-gray-200">
                     <Image
-                      src={team.photo_url || '/placeholder-team.jpg'}
+                      src={team.photo_url || "/placeholder-team.jpg"}
                       alt={team.team_name}
                       fill
                       className="object-cover"
@@ -283,4 +280,3 @@ export default function JudgeVotingPage() {
     </div>
   );
 }
-
