@@ -2,13 +2,12 @@ import { useRouter } from "next/router";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, List } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 
 // Define the shape of the history data (from your vote-history API)
 type HistoryData = {

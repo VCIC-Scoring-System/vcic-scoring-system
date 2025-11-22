@@ -74,6 +74,7 @@ export default function VotePage() {
       });
     },
     onError: (error) => {
+      console.error("Submission failed:", error);
       alert("Failed to submit vote. Please try again.");
       setIsSubmitting(false);
     },
@@ -160,7 +161,8 @@ export default function VotePage() {
               <Button
                 variant="outline"
                 className="pl-2 pr-4 border-gray-400 text-gray-700 hover:bg-gray-100"
-                onClick={() => router.back()}
+                // Back to the Judge Selection Screen
+                onClick={() => router.push(`/voting/${sheetId}`)}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -231,7 +233,6 @@ export default function VotePage() {
           {/* Flex container to keep buttons on one line */}
           <div className="flex w-full gap-2">
             {([1, 2, 3] as const).map((rank) => {
-              const isFilled = !!votes[rank];
               const isActive = activeRankTab === rank;
 
               return (
