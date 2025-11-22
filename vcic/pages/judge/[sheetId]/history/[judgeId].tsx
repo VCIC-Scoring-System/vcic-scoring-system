@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Header from "@/components/header";
+import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
@@ -16,7 +16,10 @@ interface Team {
 interface SheetHistoryData {
   eventName: string;
   judgeName: string;
-  roundVotes: Record<Round, Record<"1st Place" | "2nd Place" | "3rd Place", Team | null>>;
+  roundVotes: Record<
+    Round,
+    Record<"1st Place" | "2nd Place" | "3rd Place", Team | null>
+  >;
 }
 
 export default function HistoryPage() {
@@ -39,7 +42,9 @@ export default function HistoryPage() {
 
     async function fetchHistory() {
       try {
-        const res = await fetch(`/api/vote-history?sheetId=${sheetId}&judgeId=${judgeId}`);
+        const res = await fetch(
+          `/api/vote-history?sheetId=${sheetId}&judgeId=${judgeId}`
+        );
         const json = await res.json();
         setData(json);
       } catch (err) {
@@ -79,7 +84,8 @@ export default function HistoryPage() {
 
         {/* Judge */}
         <p className="text-lg text-center mt-1 text-black">
-          Voted as: <span className="underline font-semibold">{data.judgeName}</span>
+          Voted as:{" "}
+          <span className="underline font-semibold">{data.judgeName}</span>
         </p>
 
         {/* Round Tabs */}
@@ -147,9 +153,7 @@ export default function HistoryPage() {
         <div className="flex justify-center mt-3">
           <Button
             className="px-12 py-3 bg-[#5883b8] text-white hover:bg-[#4a6ea0] text-lg font-semibold"
-            onClick={() =>
-              router.push(`/judge/${sheetId}/vote/${judgeId}`)
-            }
+            onClick={() => router.push(`/judge/${sheetId}/vote/${judgeId}`)}
           >
             Back to Voting
           </Button>
@@ -158,4 +162,3 @@ export default function HistoryPage() {
     </div>
   );
 }
-
