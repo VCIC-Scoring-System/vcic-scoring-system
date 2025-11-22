@@ -1,22 +1,11 @@
 // pages/api/vote-history.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { sheets } from '@/lib/googleSheetsClient';
-import { ApiError } from '@/lib/types';
-
-type Round = 'Due Diligence' | 'Written Deliverables' | 'Partner Meeting';
-type Place = '1st Place' | '2nd Place' | '3rd Place';
-
-interface Team {
-  team_id: string;
-  team_name: string;
-  photo_url: string;
-}
-
-interface VoteHistoryResponse {
-  eventName: string;
-  judgeName: string;
-  roundVotes: Record<Round, Record<Place, Team | null>>;
-}
+import { 
+  ApiError, 
+  VoteHistoryResponse, 
+  RoundName, 
+  HistoryTeam} from '@/lib/types';
 
 // Helper: Get event name from MasterIndex using sheetId
 async function getEventNameBySheetId(sheetId: string): Promise<string> {
@@ -32,12 +21,18 @@ async function getEventNameBySheetId(sheetId: string): Promise<string> {
   const headers = headerResponse.data.values?.[0] || [];
   const rows = dataResponse.data.values || [];
 
-  const eventRow = rows.find((row) => row[headers.indexOf('sheet_id')] === sheetId);
+  // Find the index of specific columns to be safe
+  const sheetIdIndex = headers.indexOf('sheet_id');
+  const eventNameIndex = headers.indexOf('event_name');
+
+  if (sheetIdIndex === -1 || eventNameIndex === -1) return 'Event Title';
+
+  const eventRow = rows.find((row) => row[sheetIdIndex] === sheetId);
   if (!eventRow) {
     return 'Event Title';
   }
 
-  return eventRow[headers.indexOf('event_name')] || 'Event Title';
+  return eventRow[eventNameIndex] || 'Event Title';
 }
 
 // Helper: Fetch data from a tab
@@ -70,11 +65,11 @@ export default async function handler(
       getEventNameBySheetId(sheetId),
       fetchTabAsJson(sheetId, 'teams', 'A2:D'),
       fetchTabAsJson(sheetId, 'judges', 'A2:D'),
-      fetchTabAsJson(sheetId, 'votes_data', 'A2:F'), // A: judge_id, B: round, C: team_id, D: rank, E: points, F: timestamp
+      fetchTabAsJson(sheetId, 'votes_data', 'A2:F'), // A:judge_id, B:round, C:team_id, D:rank
     ]);
 
-    // Build teams map
-    const teamsMap = new Map<string, Team>();
+    // Build teams map using the shared HistoryTeam type
+    const teamsMap = new Map<string, HistoryTeam>();
     teamRows.forEach((row) => {
       teamsMap.set(row[0], {
         team_id: row[0],
@@ -88,7 +83,7 @@ export default async function handler(
     const judgeName = judgeRow ? judgeRow[1] : 'Unknown Judge';
 
     // Initialize roundVotes structure
-    const roundVotes: Record<Round, Record<Place, Team | null>> = {
+    const roundVotes: VoteHistoryResponse['roundVotes'] = {
       'Due Diligence': {
         '1st Place': null,
         '2nd Place': null,
@@ -109,7 +104,7 @@ export default async function handler(
     // Process votes for this judge
     votesRows.forEach((row) => {
       const voteJudgeId = row[0];
-      const round = row[1] as Round;
+      const round = row[1] as RoundName;
       const teamId = row[2];
       const rank = parseInt(row[3], 10); // 1, 2, or 3
 

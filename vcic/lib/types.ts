@@ -89,3 +89,18 @@ export type CreateEventPayload = {
   teams: FormTeam[];
   judges: FormJudge[];
 };
+
+// Reusable specific strings for rounds and places
+export type RoundName = 'Due Diligence' | 'Written Deliverables' | 'Partner Meeting';
+export type RankPlace = '1st Place' | '2nd Place' | '3rd Place';
+
+// A simplified Team object for the history view (doesn't need is_active)
+// We can reuse the existing Team type, or use Pick to select fields
+export type HistoryTeam = Pick<Team, 'team_id' | 'team_name' | 'photo_url'>;
+
+// The structure of the response payload
+export type VoteHistoryResponse = {
+  eventName: string;
+  judgeName: string;
+  roundVotes: Record<RoundName, Record<RankPlace, HistoryTeam | null>>;
+};

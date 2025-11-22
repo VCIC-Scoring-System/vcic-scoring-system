@@ -67,7 +67,10 @@ export default function VotePage() {
       // Redirect to confirmation
       router.push({
         pathname: `/voting/${sheetId}/confirmation`,
-        query: { judgeId },
+        query: {
+          judgeId,
+          round: selectedRound, // Pass the round
+        },
       });
     },
     onError: (error) => {
@@ -170,7 +173,7 @@ export default function VotePage() {
 
               {/* Judge Name / History Link - INLINE */}
               <div className="flex flex-col items-center mt-2">
-                <div className="text-lg font-medium text-gray-800">
+                <div className="text-lg font-bold text-gray-800">
                   <span>Voting as: </span>
                   <Link
                     href={`/voting/${sheetId}/history?judgeId=${judgeId}`}
@@ -316,13 +319,15 @@ export default function VotePage() {
         </div>
 
         {/* --- Submit Button --- */}
-        <div className="max-w-4xl mx-auto pb-5">
+        <div className="max-w-5xl mx-auto pb-5">
           <Button
             onClick={handleSubmit}
             disabled={isSubmitting}
             className="w-full h-12 text-lg font-bold bg-vcic-blue-500 hover:bg-vcic-blue-600 text-white shadow-lg"
           >
-            {isSubmitting ? "Submitting..." : "Submit Vote"}
+            {isSubmitting
+              ? "Submitting... Please do not close your browser."
+              : "Submit Vote"}
           </Button>
         </div>
       </main>
