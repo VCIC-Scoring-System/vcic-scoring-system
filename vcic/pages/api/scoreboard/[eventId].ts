@@ -14,6 +14,7 @@ type ScoreboardData = {
   status: 'Final';
   eventName: string;
   hostLogoUrl: string;
+  hostName: string;
   overallRankings: ScoreboardRow[];
   dueDiligence: ScoreboardRow[];
   writtenDeliverable: ScoreboardRow[];
@@ -49,6 +50,7 @@ async function getEventInfo(eventId: string) {
     eventName: eventRow[headers.indexOf('event_name')] || '',
     sheetId: eventRow[headers.indexOf('sheet_id')] || '',
     hostLogoUrl: eventRow[headers.indexOf('host_logo_url')] || '',
+    hostName: eventRow[headers.indexOf('host_name')] || '',
     status: (eventRow[headers.indexOf('status')] || 'Live') as 'Live' | 'Final',
   };
 }
@@ -114,6 +116,7 @@ export default async function handler(
       status: 'Final',
       eventName: eventInfo.eventName,
       hostLogoUrl: eventInfo.hostLogoUrl,
+      hostName: eventInfo.hostName,
       overallRankings: overall,
       dueDiligence: dueDiligence,
       writtenDeliverable: written,

@@ -1,22 +1,32 @@
-import { useEffect, useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/router";
+import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
+import { ChevronLeft } from "lucide-react";
+
 import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// -------- Types --------
+// --- Types ---
+type ScoreboardRow = {
+  teamName: string;
+  totalScore: number;
+};
 
-interface TeamRanking {
-  name: string;
-  score: number;
-}
+type ScoreboardResponse = {
+  status: "Live" | "Final";
+  eventName: string;
+  message?: string;
+  hostLogoUrl?: string;
+  hostName?: string;
+  overallRankings?: ScoreboardRow[];
+  dueDiligence?: ScoreboardRow[];
+  writtenDeliverable?: ScoreboardRow[];
+  partnerMeeting?: ScoreboardRow[];
+};
 
-interface RoundData {
-  title: string;
-  bgColor: string;
-  scores: { teamName: string; score: number }[];
-}
-
-// -------- Font sizes for overall (unchanged UI) --------
+// --- Specific Font Sizes ---
 const fontSizes = [
   "text-[28px]",
   "text-[26px]",
@@ -26,207 +36,281 @@ const fontSizes = [
   "text-[23px]",
 ];
 
+const fetchScoreboard = async (
+  eventId: string
+): Promise<ScoreboardResponse> => {
+  const res = await fetch(`/api/scoreboard/${eventId}`);
+  if (!res.ok) throw new Error("Failed to load scoreboard");
+  return res.json();
+};
+
 export default function ScoreboardPage() {
   const router = useRouter();
   const { eventId } = router.query;
 
-  const [overall, setOverall] = useState<TeamRanking[] | null>(null);
-  const [rounds, setRounds] = useState<RoundData[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isLive, setIsLive] = useState(false);
-  const [liveMessage, setLiveMessage] = useState("");
-  const [eventName, setEventName] = useState("");
+  const { data, isLoading, isError } = useQuery<ScoreboardResponse, Error>({
+    queryKey: ["scoreboard", eventId],
+    queryFn: () => fetchScoreboard(eventId as string),
+    enabled: !!eventId,
+  });
 
-  const roundColors: Record<string, string> = {
-    "Due Diligence": "#eecdcd",
-    "Written Deliverables": "#d8d3e7",
-    "Partner Meetings": "#dce9d5",
-  };
-
-  const roundOrder = [
-    "Due Diligence",
-    "Written Deliverables",
-    "Partner Meetings",
-  ];
-
-  // -------- Fetch API --------
-  useEffect(() => {
-    if (!eventId) return;
-
-    async function load() {
-      try {
-        const res = await fetch(`/api/scoreboard/${eventId}`);
-        const data = await res.json();
-
-        // Check if event is Live or Final
-        if (data.status === "Live") {
-          setIsLive(true);
-          setLiveMessage(data.message);
-          setEventName(data.eventName);
-          setLoading(false);
-          return;
-        }
-
-        // -------- Overall Map (从后端的 overallRankings 转换) --------
-        const mappedOverall = data.overallRankings.map(
-          (item: { teamName: string; totalScore: number }) => ({
-            name: item.teamName,
-            score: item.totalScore,
-          })
-        );
-
-        // -------- Round Map (从后端的各个轮次数据转换) --------
-        const roundDataMap: Record<string, any[]> = {
-          "Due Diligence": data.dueDiligence,
-          "Written Deliverables": data.writtenDeliverable,
-          "Partner Meetings": data.partnerMeeting,
-        };
-
-        const mappedRounds: RoundData[] = roundOrder.map((round) => ({
-          title: round,
-          bgColor: roundColors[round],
-          scores: (roundDataMap[round] || []).map(
-            (item: { teamName: string; totalScore: number }) => ({
-              teamName: item.teamName,
-              score: item.totalScore,
-            })
-          ),
-        }));
-
-        setEventName(data.eventName);
-        setOverall(mappedOverall);
-        setRounds(mappedRounds);
-        setLoading(false);
-      } catch (err) {
-        console.error("Failed to load scoreboard:", err);
-        setLoading(false);
-      }
-    }
-
-    load();
-  }, [eventId]);
-
-  if (loading) return <p className="text-center mt-20">Loading...</p>;
-
-  // -------- Live 状态处理 --------
-  if (isLive) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-white text-black">
+      <div className="min-h-screen flex flex-col bg-white">
         <Header />
-
-        <div className="flex items-center justify-center p-[28px]">
-          <div className="w-full max-w-[420px] bg-white p-[30px]">
-            <h1 className="text-[28px] font-bold text-black text-center mb-[25px]">
-              {eventName}
-            </h1>
-
-            <div className="bg-white border-2 border-gray-400 p-[40px] text-center rounded-md">
-              <h2 className="text-[24px] font-bold text-[#5883B8] mb-[20px]">
-                Event in Progress!
-              </h2>
-              <p className="text-[20px] text-black">{liveMessage}</p>
-            </div>
-          </div>
+        <div className="flex-grow flex flex-col items-center justify-center space-y-4 p-8">
+          <Skeleton className="h-10 w-1/2" />
+          <Skeleton className="h-[600px] w-full max-w-6xl rounded-none" />
         </div>
+        <Footer />
       </div>
     );
   }
 
-  if (!overall || !rounds)
-    return <p className="text-center mt-20">No data available</p>;
+  if (isError || !data) {
+    return (
+      <div className="min-h-screen flex flex-col bg-white">
+        <Header />
+        <div className="flex-grow flex items-center justify-center text-red-600">
+          Error loading scoreboard.
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
-  // -------- Final 状态 Render --------
-  return (
-    <div className="relative w-full min-h-screen bg-white flex items-center justify-center p-[28px]">
-      <div className="relative w-full max-w-[420px] bg-[#23538f] p-[30px] rounded-[10px]">
-        {/* ---------------------------------------------------- */}
-        {/*                    Overall Rankings                  */}
-        {/* ---------------------------------------------------- */}
+  // --- VIEW 1: LIVE EVENT ---
+  if (data.status === "Live") {
+    return (
+      <div className="min-h-screen flex flex-col bg-white text-black">
+        <Header />
 
-        <h1 className="text-[28px] font-bold text-white text-center mb-[25px]">
-          Overall Rankings
-        </h1>
-
-        <div className="bg-white border-[25px] border-[#4f84c1] mb-[35px]">
-          <div className="py-[20px]">
-            {overall.map((team, index) => (
-              <div
-                key={team.name}
-                className="flex items-center justify-between px-[20px] py-[8px]"
-              >
-                <span className={`${fontSizes[index]} font-bold text-black`}>
-                  {team.name}
-                </span>
-                <span className={`${fontSizes[index]} font-bold text-black`}>
-                  {team.score}
-                </span>
-              </div>
-            ))}
+        {/* Back Button (Icon Only) */}
+        <div className="container mx-auto px-4 mt-6">
+          <div className="self-start">
+            <Button
+              variant="outline"
+              className="pl-2 pr-4 border-gray-400 text-gray-700 hover:bg-gray-100"
+              onClick={() => router.push("/")}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
-        {/* ---------------------------------------------------- */}
-        {/*               Round-by-Round Scoreboards            */}
-        {/* ---------------------------------------------------- */}
+        <main className="flex-grow flex justify-center px-4 py-6">
+          <div className="w-full max-w-[420px] bg-white p-8">
+            <h1 className="text-[28px] font-bold text-black text-center mb-[25px]">
+              {data.eventName}
+            </h1>
+            <div className="bg-white border-2 border-gray-400 p-[40px] text-center rounded-md shadow-sm">
+              <h2 className="text-2xl font-bold text-vcic-blue-500 mb-[20px]">
+                Event in Progress!
+              </h2>
+              <p className="text-xl text-black">
+                {data.message ||
+                  "This event is ongoing. Please check back later."}
+              </p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
-        <h2 className="text-[28px] font-bold text-white text-center mb-[30px]">
-          Round by Round Scoreboards
-        </h2>
+  // --- VIEW 2: FINAL SCOREBOARD ---
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
+      <Header />
 
-        <div className="space-y-[40px] mb-[35px]">
-          {rounds.map((round) => (
-            <div key={round.title}>
-              <h3 className="text-[24px] font-bold text-white text-center mb-[15px]">
-                {round.title}
-              </h3>
-
-              <div
-                className="border-[20px] border-black rounded-[5px] p-[20px]"
-                style={{
-                  backgroundColor: round.bgColor,
-                  borderTopWidth: "55px",
-                }}
+      <main className="flex-grow container mx-auto px-4 py-6 max-w-8xl">
+        {/* Top Title Section */}
+        <div className="text-center mb-6 relative">
+          {/* Back Button */}
+          <div className="left-0 hidden md:block">
+            <div className="place-self-start">
+              <Button
+                variant="outline"
+                className="pl-2 pr-4 border-gray-400 text-gray-700 hover:bg-gray-100"
+                onClick={() => router.push("/")}
               >
-                {round.scores.map((score) => (
-                  <div
-                    key={score.teamName}
-                    className="flex items-center justify-between mb-[12px] last:mb-0"
-                  >
-                    <span className="text-[26px] font-bold text-black">
-                      {score.teamName}
-                    </span>
-                    <span className="text-[26px] font-bold text-black">
-                      {score.score}
-                    </span>
-                  </div>
-                ))}
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Mobile Back Button */}
+          <div className="md:hidden flex justify-start">
+            <div className="self-start">
+              <Button
+                variant="outline"
+                className="pl-2 pr-4 border-gray-400 text-gray-700 hover:bg-gray-100"
+                onClick={() => router.push("/")}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Event Title */}
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            {data.eventName}
+          </h1>
+        </div>
+
+        {/* Main Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-13 gap-4 h-full items-stretch">
+          {/* --- LEFT PANEL: Overall Rankings (Blue) --- */}
+          <div className="lg:col-span-4 flex flex-col bg-scoreboard-blue-dark p-10 py-6 md:p-6">
+            <h2 className="text-white text-2xl font-bold text-center mb-4">
+              Overall Rankings
+            </h2>
+
+            <div className="bg-scoreboard-blue-light p-6 flex-grow flex flex-col">
+              <div className="bg-white px-8 py-6 shadow-sm h-full">
+                <div className="flex flex-col gap-4">
+                  {data.overallRankings?.map((team, index) => {
+                    const fontSizeClass =
+                      fontSizes[index] || fontSizes[fontSizes.length - 1];
+                    return (
+                      <div
+                        key={team.teamName}
+                        className="flex justify-between items-center"
+                      >
+                        <span
+                          className={`${fontSizeClass} font-bold text-black`}
+                        >
+                          {team.teamName}
+                        </span>
+                        <span
+                          className={`${fontSizeClass} font-bold text-black`}
+                        >
+                          {team.totalScore}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          ))}
+
+            {/* Host Logo Area */}
+            <div className="bg-white mt-6 p-2 flex justify-center items-center h-20 overflow-hidden">
+              {data.hostLogoUrl ? (
+                // Priority 1: Host Logo
+                <div className="relative h-full w-full">
+                  <Image
+                    src={data.hostLogoUrl}
+                    alt="Host Logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              ) : data.hostName ? (
+                // Priority 2: Host Name (Text)
+                <span className="text-gray-900 font-bold text-lg text-center leading-tight px-2">
+                  {data.hostName}
+                </span>
+              ) : (
+                // Priority 3: VCIC Fallback Logo
+                <div className="relative h-full w-full">
+                  <Image
+                    src="/vcic-logo.png"
+                    alt="VCIC Logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* --- RIGHT PANEL: Round by Round (Gray) --- */}
+          <div className="lg:col-span-9 flex flex-col bg-scoreboard-gray p-10 py-6 md:p-6">
+            <h2 className="text-white text-2xl font-bold text-center mb-4">
+              Round by Round Scoreboards
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-4 flex-grow">
+              <RoundCard
+                title="Due Diligence"
+                data={data.dueDiligence}
+                bgColor="bg-scoreboard-pink"
+              />
+              <RoundCard
+                title="Written Deliverables"
+                data={data.writtenDeliverable}
+                bgColor="bg-scoreboard-purple"
+              />
+              <RoundCard
+                title="Partner Meetings"
+                data={data.partnerMeeting}
+                bgColor="bg-scoreboard-green"
+              />
+            </div>
+
+            {/* Footer Info - Centered on Mobile */}
+            <div className="mt-6 flex flex-col md:flex-row justify-between items-center md:items-end">
+              <div className="text-white text-lg leading-snug text-center md:text-left mb-4 md:mb-1 md:ml-8 items-center">
+                <p>3 points per #1 vote</p>
+                <p>2 points per #2 vote</p>
+                <p>1 point per #3 vote</p>
+              </div>
+
+              <div className="relative h-20 w-72 shrink-0 md:mr-8">
+                <Image
+                  src="/UNC-kenan-flagler-logo.png"
+                  alt="UNC Kenan-Flagler Business School"
+                  fill
+                  // Centered on mobile, Right on desktop
+                  className="object-contain object-center md:object-right"
+                />
+              </div>
+            </div>
+          </div>
         </div>
+      </main>
 
-        {/* ---------------------------------------------------- */}
-        {/*                    Scoring Explanation               */}
-        {/* ---------------------------------------------------- */}
+      <Footer />
+    </div>
+  );
+}
 
-        <div className="text-[24px] font-semibold text-white text-center mb-[20px] leading-normal">
-          <p>3 points per #1 vote</p>
-          <p>2 points per #2 vote</p>
-          <p>1 point per #3 vote</p>
-        </div>
+// --- Helper Component for Round Cards ---
+function RoundCard({
+  title,
+  data,
+  bgColor,
+}: {
+  title: string;
+  data?: ScoreboardRow[];
+  bgColor: string;
+}) {
+  return (
+    <div
+      className={`border-24 lg:border-16 border-t-4 lg:border-t-4 border-black flex flex-col h-full ${bgColor}`}
+    >
+      {/* Black Header Bar */}
+      <div className="bg-black text-white text-center py-2 px-1 min-h-[50px] flex items-center justify-center">
+        <h3 className="font-bold text-xl lg:text-lg leading-tight">{title}</h3>
+      </div>
 
-        {/* ---------------------------------------------------- */}
-        {/*                      Footer Logo                     */}
-        {/* ---------------------------------------------------- */}
-
-        <div className="relative w-full h-[58px]">
-          <Image
-            src="/unc-kfbs-logo.png"
-            alt="UNC KFBS Logo"
-            fill
-            className="object-contain"
-          />
-        </div>
+      {/* Body */}
+      <div className="py-6 px-8 flex-grow flex flex-col gap-3">
+        {data?.map((row) => (
+          <div
+            key={row.teamName}
+            className="flex justify-between items-center pb-1"
+          >
+            <span className="text-black font-bold text-[22px] truncate mr-1">
+              {row.teamName}
+            </span>
+            <span className="text-black font-bold text-[23px]">
+              {row.totalScore}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

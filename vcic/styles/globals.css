@@ -5,6 +5,21 @@
   --color-vcic-blue-500: #5883B8;
   --color-vcic-blue-600: #4a6ea0;
   --color-vcic-dark: #373839;
+  
+  /* --- Scoreboard Colors --- */
+  
+  /* Overall Rankings (Blue Theme) */
+  --color-scoreboard-blue-dark: #23538F;  /* Outer Blue */
+  --color-scoreboard-blue-light: #4F84C1; /* Inner Border Blue */
+
+  /* Round Containers (Gray Theme) */
+  --color-scoreboard-gray: #666666;        /* Main Gray Background */
+
+  /* Round-Specific Backgrounds (Pastels) */
+  --color-scoreboard-pink: #EECDCD;        /* Due Diligence */
+  --color-scoreboard-purple: #D8D3E7;      /* Written Deliverables */
+  --color-scoreboard-green: #DCE9D5;       /* Partner Meeting */
+  
 }
 
 @custom-variant dark (&:is(.dark *));
