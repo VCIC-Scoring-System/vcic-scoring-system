@@ -87,7 +87,7 @@ export default function VoteHistoryPage() {
             {data.eventName}
           </h2>
 
-          {/* 2. Voted As (Moved Up) */}
+          {/* 2. Voted As */}
           <div className="mt-2 text-lg text-gray-800">
             <span className="font-bold text-gray-800">Voted as: </span>
             <span className="font-bold underline text-gray-900 ml-1">
@@ -95,7 +95,7 @@ export default function VoteHistoryPage() {
             </span>
           </div>
 
-          {/* 3. Section Title (Moved Down) */}
+          {/* 3. Section Title */}
           <div className="mt-4 mb-2">
             <h3 className="text-xl font-bold text-gray-900">
               Round and Previous Votes
@@ -106,7 +106,7 @@ export default function VoteHistoryPage() {
           </div>
         </div>
 
-        {/* --- Round Selector (Reused Style) --- */}
+        {/* --- Round Selector --- */}
         <div className="mb-6 max-w-5xl mx-auto">
           <div className="flex w-full gap-2">
             {ROUNDS.map((round) => (
@@ -128,7 +128,7 @@ export default function VoteHistoryPage() {
           </div>
         </div>
 
-        {/* --- Vote Summary Cards (Reused Style) --- */}
+        {/* --- Vote Summary Cards --- */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-7xl mx-auto mb-8">
           {["1st Place", "2nd Place", "3rd Place"].map((place) => {
             const rankKey = place as keyof typeof currentRoundVotes;

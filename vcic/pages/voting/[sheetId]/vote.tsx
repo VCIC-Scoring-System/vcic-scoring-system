@@ -173,7 +173,7 @@ export default function VotePage() {
                 {data?.eventName}
               </h2>
 
-              {/* Judge Name / History Link - INLINE */}
+              {/* Judge Name / History Link */}
               <div className="flex flex-col items-center mt-2">
                 <div className="text-lg font-bold text-gray-800">
                   <span>Voting as: </span>
@@ -326,9 +326,7 @@ export default function VotePage() {
             disabled={isSubmitting}
             className="w-full h-12 text-lg font-bold bg-vcic-blue-500 hover:bg-vcic-blue-600 text-white shadow-lg"
           >
-            {isSubmitting
-              ? "Submitting... Please do not close your browser."
-              : "Submit Vote"}
+            {isSubmitting ? "Submitting..." : "Submit Vote"}
           </Button>
         </div>
       </main>

@@ -9,7 +9,7 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-// Define the shape of the history data (from your vote-history API)
+// Define the shape of the history data (from vote-history API)
 type HistoryData = {
   eventName: string;
   judgeName: string;
@@ -80,13 +80,13 @@ export default function ConfirmationPage() {
       <Header />
 
       <main className="flex-grow container mx-auto px-4 py-8 text-center">
-        {/* --- Event Title & Judge Identity (Consistent Style) --- */}
+        {/* --- Event Title & Judge Identity --- */}
         <div className="text-center w-full mb-6">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
             {data.eventName}
           </h2>
 
-          {/* Judge Name / History Link - INLINE */}
+          {/* Judge Name / History Link */}
           <div className="flex flex-col items-center mt-2">
             <div className="text-lg font-bold text-gray-800">
               <span>Voting as: </span>
@@ -133,7 +133,6 @@ export default function ConfirmationPage() {
                 key={place}
                 className="overflow-hidden border-gray-200 shadow-sm py-4 sm:py-6"
               >
-                {/* Changed to always be flex-row (Side-by-Side) */}
                 <CardContent className="p-0 flex flex-row h-24 sm:h-28">
                   {/* Left Side (Text) */}
                   <div className="flex-1 p-4 flex flex-col justify-center text-left pl-6">
