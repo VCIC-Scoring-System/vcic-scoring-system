@@ -118,10 +118,6 @@ export default function ConfirmationPage() {
         {/* --- Vote Summary Cards --- */}
         <h3 className="text-xl font-bold text-gray-900 mb-4">Vote Summary</h3>
 
-        {/* LAYOUT CONTROL:
-            Current: Vertical Stack (flex-col)
-            To make Desktop Horizontal: Change className to "grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10"
-        */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-7xl mx-auto mb-10">
           {["1st Place", "2nd Place", "3rd Place"].map((place) => {
             const rankKey = place as keyof typeof currentRoundVotes;
@@ -180,7 +176,7 @@ export default function ConfirmationPage() {
         </div>
 
         {/* --- Action Buttons --- */}
-        <div className="flex flex-col sm:flex-row gap-5 justify-center max-w-2xl mx-auto pb-8">
+        <div className="flex flex-col sm:flex-row gap-5 justify-center max-w-2xl mx-auto pb-5">
           {/* Back to Voting */}
           <Button
             onClick={handleBackToVoting}

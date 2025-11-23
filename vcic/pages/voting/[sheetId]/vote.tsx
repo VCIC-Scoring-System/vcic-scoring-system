@@ -222,7 +222,7 @@ export default function VotePage() {
         </div>
 
         {/* --- Rank Tabs (1st, 2nd, 3rd) --- */}
-        <div className="mb-8 max-w-5xl mx-auto">
+        <div className="mb-6 max-w-5xl mx-auto">
           <h3 className="text-center text-lg font-semibold text-gray-900 mb-1">
             Vote:
           </h3>
