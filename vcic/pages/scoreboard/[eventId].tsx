@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import Header from "@/components/header";
+import { Header } from "@/components/header";
 
 // -------- Types --------
 
@@ -59,7 +59,7 @@ export default function ScoreboardPage() {
         const data = await res.json();
 
         // Check if event is Live or Final
-        if (data.status === 'Live') {
+        if (data.status === "Live") {
           setIsLive(true);
           setLiveMessage(data.message);
           setEventName(data.eventName);
@@ -106,8 +106,7 @@ export default function ScoreboardPage() {
     load();
   }, [eventId]);
 
-  if (loading)
-    return <p className="text-center mt-20">Loading...</p>;
+  if (loading) return <p className="text-center mt-20">Loading...</p>;
 
   // -------- Live 状态处理 --------
   if (isLive) {
@@ -125,9 +124,7 @@ export default function ScoreboardPage() {
               <h2 className="text-[24px] font-bold text-[#5883B8] mb-[20px]">
                 Event in Progress!
               </h2>
-              <p className="text-[20px] text-black">
-                {liveMessage}
-              </p>
+              <p className="text-[20px] text-black">{liveMessage}</p>
             </div>
           </div>
         </div>
@@ -142,7 +139,6 @@ export default function ScoreboardPage() {
   return (
     <div className="relative w-full min-h-screen bg-white flex items-center justify-center p-[28px]">
       <div className="relative w-full max-w-[420px] bg-[#23538f] p-[30px] rounded-[10px]">
-
         {/* ---------------------------------------------------- */}
         {/*                    Overall Rankings                  */}
         {/* ---------------------------------------------------- */}
@@ -235,4 +231,3 @@ export default function ScoreboardPage() {
     </div>
   );
 }
-

@@ -1,42 +1,53 @@
-import { useEffect, useState } from "react";
-import { Header } from "@/components/header";
-import { useRouter } from "next/router";
+import { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Search } from "lucide-react";
 
-// Event type
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { Button } from "@/components/ui/button";
+
+// --- Data Type Definition ---
 interface EventItem {
   id: string;
   name: string;
   category: "MBA" | "Undergraduate";
-  status: "live" | "final"; // 🟢 or 🏁
+  status: "live" | "final";
   date: string;
   host: {
     name: string;
-    logo: string; // logo URL
+    logo: string;
   };
 }
 
-export default function EventsPage() {
-  const router = useRouter();
-
+export default function HomePage() {
+  // State
   const [events, setEvents] = useState<EventItem[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<EventItem[]>([]);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<
-    "MBA" | "Undergraduate"
-  >("MBA");
+    "All" | "MBA" | "Undergraduate"
+  >("All");
   const [loading, setLoading] = useState(true);
 
-  // Fetch events from API
+  // Fetch events
   useEffect(() => {
     async function load() {
       try {
         const res = await fetch("/api/events");
-        const data = await res.json();
+        if (!res.ok) throw new Error(`API Error: ${res.status}`);
 
-        setEvents(data.events);
-        setFilteredEvents(
-          data.events.filter((e: EventItem) => e.category === "MBA")
+        const rawData = await res.json();
+
+        // Your API returns { events: [...] }
+        const eventsArray = rawData.events || [];
+
+        // Sort by Date (Newest First)
+        const sortedData = eventsArray.sort(
+          (a: EventItem, b: EventItem) =>
+            new Date(b.date).getTime() - new Date(a.date).getTime()
         );
+
+        setEvents(sortedData);
       } catch (err) {
         console.error("Failed to load events", err);
       } finally {
@@ -46,110 +57,158 @@ export default function EventsPage() {
     load();
   }, []);
 
-  // Apply filters
-  useEffect(() => {
-    const results = events.filter((evt) => {
-      const matchCat = evt.category === selectedCategory;
-      const matchSearch = evt.name.toLowerCase().includes(search.toLowerCase());
+  // Filter Logic
+  const filteredEvents = useMemo(() => {
+    return events.filter((evt) => {
+      // 1. Filter by Category
+      const matchCat =
+        selectedCategory === "All" || evt.category === selectedCategory;
+
+      // 2. Filter by Search (Name or Host)
+      const term = search.toLowerCase();
+      const matchSearch =
+        evt.name.toLowerCase().includes(term) ||
+        evt.host.name.toLowerCase().includes(term);
+
       return matchCat && matchSearch;
     });
+  }, [events, search, selectedCategory]);
 
-    setFilteredEvents(results);
-  }, [search, selectedCategory, events]);
-
-  if (loading)
+  if (loading) {
     return (
-      <p className="text-center mt-20 text-lg text-black">Loading events...</p>
+      <div className="min-h-screen flex flex-col bg-white">
+        <Header />
+        <div className="flex-grow flex items-center justify-center">
+          <p className="text-lg text-gray-500 animate-pulse">
+            Loading events...
+          </p>
+        </div>
+        <Footer />
+      </div>
     );
+  }
 
   return (
-    <div className="bg-white min-h-screen pb-10">
+    <div className="bg-white min-h-screen flex flex-col">
       <Header />
 
-      {/* Page Title */}
-      <h1 className="text-[28px] font-bold text-black text-center mt-[20px]">
-        VCIC Events
-      </h1>
+      <main className="flex-grow w-full max-w-7xl mx-auto px-4 md:px-6 py-8">
+        {/* Page Title */}
+        <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+          VCIC Events
+        </h1>
 
-      {/* Search Box */}
-      <div className="px-6 mt-[15px]">
-        <div className="flex items-center px-3 py-2 border rounded-md bg-white shadow-sm">
-          <span className="text-gray-500 text-lg mr-2">🔍</span>
-          <input
-            className="flex-1 outline-none text-[16px] text-black"
-            type="text"
-            placeholder="Search events..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
+        {/* --- Controls Section --- */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+          {/* 1. Search Box */}
+          <div className="relative w-full md:w-96 md:order-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <input
+              className="w-full pl-10 pr-4 py-2 text-gray-600 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-vcic-blue-500 focus:border-transparent transition-all"
+              type="text"
+              placeholder="Search events or hosts..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
 
-      {/* Category Tabs */}
-      <div className="flex px-6 mt-4 gap-2">
-        <button
-          onClick={() => setSelectedCategory("MBA")}
-          className={`flex-1 px-4 py-2 text-sm rounded-md ${
-            selectedCategory === "MBA"
-              ? "bg-[#5883B8] text-white hover:bg-[#4a6ea0]"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-        >
-          MBA
-        </button>
-
-        <button
-          onClick={() => setSelectedCategory("Undergraduate")}
-          className={`flex-1 px-4 py-2 text-sm rounded-md ${
-            selectedCategory === "Undergraduate"
-              ? "bg-[#5883B8] text-white hover:bg-[#4a6ea0]"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-        >
-          Undergraduate
-        </button>
-      </div>
-
-      {/* Event Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-6 mt-6">
-        {filteredEvents.map((evt) => (
-          <div
-            key={evt.id}
-            className="bg-white border border-gray-300 rounded-[10px] overflow-hidden shadow-sm"
-          >
-            {/* Event Name Bar */}
-            <div className="bg-[#4f84c1] px-2 py-2 text-center text-white text-[15px] font-semibold">
-              {evt.name}
-            </div>
-
-            {/* Body */}
-            <div className="px-3 py-2 text-[15px]">
-              {/* Status */}
-              <div className="flex items-center gap-2">
-                <span className="text-black">
-                  {evt.status === "live" ? "live 🟢" : "final 🏁"}
-                </span>
-              </div>
-
-              {/* Date */}
-              <p className="mt-1 text-black">{evt.date}</p>
-
-              {/* Hosted By */}
-              <p className="mt-2 text-[14px] text-black">
-                Hosted by {evt.host.name}
-              </p>
-
-              {/* Scoreboard Button */}
-              <button
-                onClick={() => router.push(`/scoreboard/${evt.id}`)}
-                className="w-full bg-[#333333] text-white py-2 rounded-md mt-3 text-[15px] text-center"
-              >
-                View Scoreboard
-              </button>
+          {/* 2. Category Tabs */}
+          <div className="w-full md:w-auto md:order-1">
+            <div className="grid grid-cols-3 w-full gap-2">
+              {(["All", "MBA", "Undergraduate"] as const).map((cat) => (
+                <Button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`
+                    flex-1 h-auto py-2.5 px-6 text-sm font-semibold transition-all
+                    ${
+                      selectedCategory === cat
+                        ? "bg-vcic-blue-500 text-white hover:bg-vcic-blue-600 shadow-md"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm"
+                    }
+                  `}
+                >
+                  {cat === "All" ? "All Events" : cat}
+                </Button>
+              ))}
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+
+        {/* --- Event Grid --- */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {filteredEvents.map((evt) => (
+            <div
+              key={evt.id}
+              className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col h-full"
+            >
+              {/* Event Name Bar (Blue Header) */}
+              <div className="bg-vcic-blue-500 px-2 text-center h-20 flex items-center justify-center">
+                <h3 className="text-white text-base font-bold leading-tight line-clamp-2">
+                  {evt.name}
+                </h3>
+              </div>
+
+              {/* Body */}
+              <div className="px-4 py-3 flex flex-col flex-grow bg-gray-50/30">
+                {/* Date & Status Row */}
+                <div className="flex justify-between items-center text-sm font-medium text-gray-500 mb-3 pb-2 border-b border-gray-100">
+                  <span>{evt.date}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="capitalize tracking-wider text-xs">
+                      {evt.status}
+                    </span>
+                    <span
+                      className={`block h-2.5 w-2.5 rounded-full ${
+                        evt.status === "live" ? "bg-green-500" : "bg-stone-500"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                {/* Host Info */}
+                <div className="flex-grow flex flex-col items-center justify-center text-center py-1">
+                  <span className="text-xs text-gray-600 uppercase tracking-wide mb-2">
+                    Hosted by
+                  </span>
+
+                  {/* Host Logo or Name */}
+                  <div className="relative h-10 w-28 flex items-center justify-center">
+                    {evt.host.logo ? (
+                      <Image
+                        src={evt.host.logo}
+                        alt={evt.host.name}
+                        fill
+                        className="object-contain"
+                      />
+                    ) : (
+                      <p className="text-sm font-semibold text-gray-700 line-clamp-2">
+                        {evt.host.name}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Scoreboard Button */}
+                <Link href={`/scoreboard/${evt.id}`} className="w-full">
+                  <div className="w-full bg-vcic-dark hover:bg-vcic-dark/80 text-white text-center py-2.5 rounded-lg mt-4 text-sm font-semibold transition-colors cursor-pointer">
+                    View Scoreboard
+                  </div>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Empty State */}
+        {!loading && filteredEvents.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-gray-500 text-xl">No events found.</p>
+          </div>
+        )}
+      </main>
+
+      <Footer />
     </div>
   );
 }

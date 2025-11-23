@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-// Note: Ensure these paths match your project structure exactly
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Card, CardContent } from "@/components/ui/card";
