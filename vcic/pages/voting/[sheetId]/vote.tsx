@@ -260,7 +260,7 @@ export default function VotePage() {
         </div>
 
         {/* --- Team Grid --- */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 mb-12">
           {data?.teams.map((team) => {
             const rank = getTeamRank(team.team_id);
             const isSelected = rank !== null;

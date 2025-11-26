@@ -126,7 +126,7 @@ export default function ScoreboardPage() {
 
       <main className="flex-grow container mx-auto px-4 py-6 max-w-8xl">
         {/* Top Title Section */}
-        <div className="text-center mb-6 relative">
+        <div className="text-center mb-3 relative">
           {/* Back Button */}
           <div className="left-0 hidden md:block">
             <div className="place-self-start">
