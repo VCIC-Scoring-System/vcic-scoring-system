@@ -6,6 +6,7 @@ import { Search } from "lucide-react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
+import Head from "next/head";
 
 // --- Data Type Definition ---
 interface EventItem {
@@ -90,6 +91,14 @@ export default function HomePage() {
 
   return (
     <div className="bg-white min-h-screen flex flex-col">
+      <Head>
+        <title>VCIC Events</title>
+        <meta
+          name="description"
+          content="Venture Capital Investment Competition Scoring System"
+        />
+      </Head>
+
       <Header />
 
       <main className="flex-grow w-full max-w-7xl mx-auto px-4 md:px-6 py-8">

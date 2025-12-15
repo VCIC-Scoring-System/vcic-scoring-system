@@ -9,6 +9,7 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { VoteHistoryResponse, RoundName } from "@/lib/types";
+import Head from "next/head";
 
 // Define the rounds constant
 const ROUNDS = [
@@ -53,6 +54,9 @@ export default function VoteHistoryPage() {
     "3rd Place": null,
   };
 
+  // Determine the name (fallback to "VCIC Voting" if loading)
+  const eventName = data?.eventName || "VCIC Voting";
+
   if (isLoading)
     return <div className="p-10 text-center">Loading history...</div>;
   if (isError || !data)
@@ -64,6 +68,10 @@ export default function VoteHistoryPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      <Head>
+        <title>{eventName}</title>
+      </Head>
+
       <Header />
 
       <main className="flex-grow container mx-auto px-4 py-6 text-center max-w-7xl">

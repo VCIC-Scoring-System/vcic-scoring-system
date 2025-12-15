@@ -7,6 +7,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import Head from "next/head";
 
 // --- Types ---
 type ScoreboardRow = {
@@ -52,11 +53,19 @@ export default function ScoreboardPage() {
     queryKey: ["scoreboard", eventId],
     queryFn: () => fetchScoreboard(eventId as string),
     enabled: !!eventId,
+    refetchInterval: 5000,
   });
+
+  // Helper to determine the title based on loading state
+  const pageTitle = data?.eventName ? data.eventName : "VCIC Scoreboard";
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-white">
+        {/* Dynamic Title for Loading State */}
+        <Head>
+          <title>Loading Scoreboard...</title>
+        </Head>
         <Header />
         <div className="flex-grow flex flex-col items-center justify-center space-y-4 p-8">
           <Skeleton className="h-10 w-1/2" />
@@ -83,6 +92,11 @@ export default function ScoreboardPage() {
   if (data.status === "Live") {
     return (
       <div className="min-h-screen flex flex-col bg-white text-black">
+        {/* Dynamic Title for Live View */}
+        <Head>
+          <title>{pageTitle}</title>
+        </Head>
+
         <Header />
 
         {/* Back Button (Icon Only) */}
@@ -122,6 +136,11 @@ export default function ScoreboardPage() {
   // --- VIEW 2: FINAL SCOREBOARD ---
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      {/* Dynamic Title for Final View */}
+      <Head>
+        <title>{pageTitle}</title>
+      </Head>
+
       <Header />
 
       <main className="flex-grow container mx-auto px-4 py-6 max-w-8xl">

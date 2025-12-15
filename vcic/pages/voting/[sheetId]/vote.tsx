@@ -10,6 +10,7 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EventData, VotePayload } from "@/lib/types";
+import Head from "next/head";
 
 // --- Types ---
 type Rank = 1 | 2 | 3;
@@ -140,6 +141,9 @@ export default function VotePage() {
     return null;
   };
 
+  // Determine the name (fallback to "VCIC Voting" if loading)
+  const eventName = data?.eventName || "VCIC Voting";
+
   if (isLoading)
     return <div className="p-8 text-center">Loading voting...</div>;
   if (isError)
@@ -149,6 +153,10 @@ export default function VotePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      <Head>
+        <title>{eventName}</title>
+      </Head>
+
       <Header />
 
       <main className="flex-grow container mx-auto px-4 py-6 max-w-5xl">

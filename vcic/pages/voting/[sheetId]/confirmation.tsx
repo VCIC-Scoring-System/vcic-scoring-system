@@ -8,6 +8,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import Head from "next/head";
 
 // Define the shape of the history data (from vote-history API)
 type HistoryData = {
@@ -66,6 +67,9 @@ export default function ConfirmationPage() {
     });
   };
 
+  // Determine the name (fallback to "VCIC Voting" if loading)
+  const eventName = data?.eventName || "VCIC Voting";
+
   if (isLoading)
     return <div className="p-10 text-center">Loading confirmation...</div>;
   if (isError || !data)
@@ -77,6 +81,10 @@ export default function ConfirmationPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      <Head>
+        <title>{eventName}</title>
+      </Head>
+
       <Header />
 
       <main className="flex-grow container mx-auto px-4 py-8 text-center">

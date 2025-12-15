@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EventData } from "@/lib/types";
+import Head from "next/head";
 
 // Fetcher function
 const fetchVoteData = async (sheetId: string): Promise<EventData> => {
@@ -39,8 +40,15 @@ export default function JudgeSelectionPage() {
     });
   };
 
+  // Determine the name (fallback to "VCIC Voting" if loading)
+  const eventName = data?.eventName || "VCIC Voting";
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      <Head>
+        <title>{eventName}</title>
+      </Head>
+
       <Header />
 
       <main className="flex-grow container mx-auto px-4 py-8 max-w-7xl">
